@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Hello there</h1>
+
+    <p>do you want to see all books?</p>
+    <a href="/api/v1/book">Click here</a>
+
+    <p>You can create a new book here</p>
+    <form method="POST" action="/api/v1/book">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title">
+        </div>
+        <div>
+            <label for="author">Author</label>
+            <input type="text" name="author" id="author">
+        </div>
+        <div>
+            <label for="rating">Rating</label>
+            <input type="number" min="0" max="5" name="rating" id="rating">
+        </div>
+        
+        <input type="submit" value="Submit">
+    </form>
+
+</body>
+</html>

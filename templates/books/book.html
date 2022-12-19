@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book</title>
+</head>
+<body>
+
+    {% if can_see %}
+
+        <h1>Book: {{book.Title}}</h1>
+        
+        <form method="PUT" action="/api/v1/book/{{book.ID}}">
+            <div>
+                <label for="title">Title</label>
+                <input type="text" name="title" id="title" value="{{book.Title}}">
+            </div>
+            <div>
+                <label for="author">Author</label>
+                <input type="text" name="author" id="author" value="{{book.Author}}">
+            </div>
+            <div>
+                <label for="rating">Rating</label>
+                <input type="number" min="0" max="5" name="rating" id="rating" value="{{book.Rating}}">
+            </div>
+            
+            <input type="submit" value="Change">
+        </form>
+    
+    {% else %}
+        <p>Bad id</p>
+    {% endif %}
+
+    <a href="/api/v1/book">Return to books</a>
+    <br>
+    <a href="/">Return to home</a>
+</body>
+</html>
