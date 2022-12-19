@@ -4,98 +4,67 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/sidizawi/rest_api_go/database"
-	"gorm.io/gorm"
+	db "github.com/sidizawi/rest_api_go/database"
 )
 
-type Book struct {
-	gorm.Model
-	Title  string
-	Author string
-	Rating int
+func SetupBookRoutes(router fiber.Router) {
+	router.Get("/", Home)
+	router.Get("/change/:id", UpdateBook)
+	router.Post("/change/:id", UpdateBook)
+	router.Get("/create", CreateNewBook)
+	router.Post("/create", CreateNewBook)
 }
 
-func GetBooks(c *fiber.Ctx) error {
-	var books []Book
+func Home(c *fiber.Ctx) error {
+	var books []db.Book
 
-	result := database.DBConn.Find(&books)
-
-	if result.Error != nil {
-		return c.Render("index", fiber.Map{
-			"books": []Book{},
-		}, "books/index")
-	}
+	db.DBConn.Find(&books)
 
 	return c.Render("index", fiber.Map{
 		"books": books,
-	}, "books/index")
-}
-
-func GetBook(c *fiber.Ctx) error {
-	var book Book
-	id, err := c.ParamsInt("id")
-
-	if err != nil {
-		return c.Render("index", fiber.Map{
-			"can_see": false,
-			// "book":    Book{},
-		}, "books/book")
-	}
-
-	database.DBConn.First(&book, id)
-
-	return c.Render("index", fiber.Map{
-		"can_see": true,
-		"book":    book,
-	}, "books/book")
-}
-
-func NewBook(c *fiber.Ctx) error {
-	var book Book
-
-	if err := c.BodyParser(&book); err != nil {
-		c.Path("/")
-		return c.RestartRouting()
-	}
-
-	database.DBConn.Create(&book)
-
-	c.Path("/api/v1/book")
-	return c.RestartRouting()
+	})
 }
 
 func UpdateBook(c *fiber.Ctx) error {
-	var book Book
+	var book db.Book
+
 	id, err := c.ParamsInt("id")
 
 	if err != nil {
-		c.Path("/")
-		return c.RestartRouting()
+		return c.Redirect("/")
 	}
 
-	database.DBConn.First(&book, id)
+	db.DBConn.First(&book, id)
 
-	if err = c.BodyParser(&book); err != nil {
-		c.Path("/")
-		return c.RestartRouting()
+	if c.Method() == "POST" {
+		if err = c.BodyParser(&book); err != nil {
+			// return c.Redirect(fmt.Sprintf("/change/%v", id))
+			return c.Render("change", fiber.Map{
+				"book": book,
+			})
+		}
+
+		db.DBConn.Save(book)
+		return c.Redirect(fmt.Sprintf("/change/%v", id))
 	}
 
-	database.DBConn.Save(book)
-
-	c.Path(fmt.Sprintf("/api/v1/book/%v", book.ID))
-	return c.RestartRouting()
+	return c.Render("change", fiber.Map{
+		"book": book,
+	})
 }
 
-func DeleteBook(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("id")
+func CreateNewBook(c *fiber.Ctx) error {
+	var book db.Book
 
-	if err != nil {
-		c.Path("/")
-		return c.RestartRouting()
+	if c.Method() == "POST" {
+		if err := c.BodyParser(&book); err != nil {
+			// return c.Redirect("/create")
+			return c.Render("create", fiber.Map{})
+		}
+
+		db.DBConn.Create(&book)
+		return c.Redirect(fmt.Sprintf("/change/%v", book.ID))
 	}
 
-	database.DBConn.Delete(&Book{}, id)
-
-	c.Path("/api/v1/book")
-	return c.RestartRouting()
+	return c.Render("create", fiber.Map{})
 }

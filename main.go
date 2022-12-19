@@ -6,8 +6,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/django"
+	"github.com/sidizawi/rest_api_go/api"
 	"github.com/sidizawi/rest_api_go/book"
-	"github.com/sidizawi/rest_api_go/database"
+	db "github.com/sidizawi/rest_api_go/database"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -15,7 +16,7 @@ import (
 func initDatabase() {
 	var err error
 
-	database.DBConn, err = gorm.Open(sqlite.Open("books.db"))
+	db.DBConn, err = gorm.Open(sqlite.Open("books.db"))
 
 	if err != nil {
 		panic("Can't connect to db")
@@ -23,7 +24,7 @@ func initDatabase() {
 
 	fmt.Println("Database connection succefully")
 
-	err = database.DBConn.AutoMigrate(&book.Book{})
+	err = db.DBConn.AutoMigrate(&db.Book{})
 
 	if err != nil {
 		panic("Can't auto migrate")
@@ -32,17 +33,12 @@ func initDatabase() {
 	fmt.Println("Auto migrate ok!")
 }
 
-func index(c *fiber.Ctx) error {
-	return c.Render("index", fiber.Map{})
-}
-
 func setupRoutes(app *fiber.App) {
-	app.Get("/", index)
-	app.Get("/api/v1/book", book.GetBooks)
-	app.Get("/api/v1/book/:id", book.GetBook)
-	app.Post("/api/v1/book", book.NewBook)
-	app.Put("/api/v1/book/:id", book.UpdateBook)
-	app.Delete("/api/v1/book/:id", book.DeleteBook)
+	api_routes := app.Group("/api/v1/")
+	api.SetupApiRoutes(api_routes)
+
+	book_routes := app.Group("")
+	book.SetupBookRoutes(book_routes)
 }
 
 func main() {

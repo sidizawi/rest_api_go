@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	_ "gorm.io/driver/sqlite"
@@ -8,3 +8,10 @@ import (
 var (
 	DBConn *gorm.DB
 )
+
+type Book struct {
+	gorm.Model
+	Title  string
+	Author string
+	Rating int
+}

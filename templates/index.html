@@ -4,31 +4,29 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test</title>
+    <title>Book store</title>
+    <style>
+        .book {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello there</h1>
+    <h1>Welcome to my book store</h1>
 
-    <p>do you want to see all books?</p>
-    <a href="/api/v1/book">Click here</a>
+    <p>You can create a new book <a href="/create">here</a></p>
 
-    <p>You can create a new book here</p>
-    <form method="POST" action="/api/v1/book">
-        <div>
-            <label for="title">Title</label>
-            <input type="text" name="title" id="title">
-        </div>
-        <div>
-            <label for="author">Author</label>
-            <input type="text" name="author" id="author">
-        </div>
-        <div>
-            <label for="rating">Rating</label>
-            <input type="number" min="0" max="5" name="rating" id="rating">
-        </div>
-        
-        <input type="submit" value="Submit">
-    </form>
-
+    <p>Here are all books that we have:</p>
+    {% if books|length > 0 %}
+        {% for book in books %}
+            <div class="book">
+                <p><a href="/change/{{book.ID}}"><strong>{{book.Title}}</strong></a></p>
+                <br>
+                <p><strong>Author</strong>: {{book.Author}}, <strong>Rating</strong>: {{book.Rating}}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+    <p>We don't have any book at moment, you can create a new one <a href="/create">here</a></p>
+    {% endif %}
 </body>
 </html>
